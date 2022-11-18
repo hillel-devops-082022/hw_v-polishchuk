@@ -10,7 +10,7 @@
 - Work with branches (merge and rebase)
 - Add remote repository
 
-### HW #16. Docker
+### HW #16. Docker. Docker composer
 - Build two images from sources (frontend, backend)
 - Work with dockerhub
 - Run containers from this images
@@ -20,3 +20,6 @@
     docker run --rm --name backend -p 8080:8080 --network=app --env PORT="8080" --env NODE_ENV="production" --env MONGO_DB_URI="mongodb://mongo:27017/conduit" polishchukv/hillel-backend:0.0.1
     docker run --rm --name frontend -p 80:80 --network=app polishchukv/hillel-frontend:0.0.1
     ```
+- Work with **docker compose**. Run application from one file
+  `docker compose up -d`
+- Combine several docker compose file and run them at once
