@@ -23,3 +23,11 @@
 - Work with **docker compose**. Run application from one file
   `docker compose up -d`
 - Combine several docker compose file and run them at once
+
+### HW #17. Docker Swarm
+- Make backend dependable from db
+- Create and deploy Docker Swarm service (from **hw_16** folder!)
+  ````
+  docker swarm init
+  docker stack deploy -c docker-compose.yml -c docker-compose.stack.yml realworld
+  ````
