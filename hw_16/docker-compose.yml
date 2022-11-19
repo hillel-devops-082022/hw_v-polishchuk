@@ -10,8 +10,8 @@ services:
     networks:
       - public
   backend:
-    build: ./backend
-    image: polishchukv/hillel-backend:0.0.1
+    image: polishchukv/hillel-backend:0.0.2
+    command: sh -c './wait-for mongo:27017 -- npm start'
     depends_on:
       - mongo
     environment:
