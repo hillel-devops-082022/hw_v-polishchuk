@@ -1,7 +1,6 @@
 version: "3"
 services:
   frontend:
-    build: ./frontend
     image: polishchukv/hillel-frontend:0.0.2
     environment:
       REACT_APP_BACKEND_URL: "http://localhost:8081/api"
@@ -19,11 +18,11 @@ services:
       NODE_ENV: 'production'
       MONGO_DB_URI: 'mongodb://mongo/conduit'
       SECRET: 'secret'
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://backend:8081/api/status"]
-      interval: 10m
-      timeout: 10s
-      retries: 3
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://backend:8081/api/status"]
+#      interval: 10m
+#      timeout: 10s
+#      retries: 3
     ports:
       - 8081:8081
     restart: on-failure
