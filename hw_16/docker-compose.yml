@@ -1,4 +1,4 @@
-version: "3"
+version: "3.5"
 services:
   frontend:
     image: polishchukv/hillel-frontend:0.0.2
@@ -9,8 +9,7 @@ services:
     networks:
       - public
   backend:
-    image: polishchukv/hillel-backend:0.0.2
-    command: sh -c './wait-for mongo:27017 -- npm start'
+    image: polishchukv/hillel-backend:0.0.1
     depends_on:
       - mongo
     environment:
@@ -18,11 +17,12 @@ services:
       NODE_ENV: 'production'
       MONGO_DB_URI: 'mongodb://mongo/conduit'
       SECRET: 'secret'
-#    healthcheck:
-#      test: ["CMD", "curl", "-f", "http://backend:8081/api/status"]
-#      interval: 10m
-#      timeout: 10s
-#      retries: 3
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8081/api/status || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     ports:
       - 8081:8081
     restart: on-failure
