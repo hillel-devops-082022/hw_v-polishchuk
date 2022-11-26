@@ -1,0 +1,550 @@
+1. Create VPC
+aws ec2 create-vpc --cidr-block 10.1.0.0/16
+{
+    "Vpc": {
+        "CidrBlock": "10.1.0.0/16",
+        "DhcpOptionsId": "dopt-0764711bb4f2e74a6",
+        "State": "pending",
+        "VpcId": "vpc-08efc2fa78f0c7636",
+        "OwnerId": "232112744116",
+        "InstanceTenancy": "default",
+        "Ipv6CidrBlockAssociationSet": [],
+        "CidrBlockAssociationSet": [
+            {
+                "AssociationId": "vpc-cidr-assoc-08c1e954320e9c86c",
+                "CidrBlock": "10.1.0.0/16",
+                "CidrBlockState": {
+                    "State": "associated"
+                }
+            }
+        ],
+        "IsDefault": false
+    }
+}
+
+2. Create public subnet
+aws ec2 create-subnet \
+    --vpc-id vpc-08efc2fa78f0c7636 \
+    --cidr-block 10.1.1.0/24
+{
+    "Subnet": {
+        "AvailabilityZone": "us-east-1e",
+        "AvailabilityZoneId": "use1-az3",
+        "AvailableIpAddressCount": 251,
+        "CidrBlock": "10.1.1.0/24",
+        "DefaultForAz": false,
+        "MapPublicIpOnLaunch": false,
+        "State": "available",
+        "SubnetId": "subnet-0b1ff86d0b693ff58",
+        "VpcId": "vpc-08efc2fa78f0c7636",
+        "OwnerId": "232112744116",
+        "AssignIpv6AddressOnCreation": false,
+        "Ipv6CidrBlockAssociationSet": [],
+        "SubnetArn": "arn:aws:ec2:us-east-1:232112744116:subnet/subnet-0b1ff86d0b693ff58",
+        "EnableDns64": false,
+        "Ipv6Native": false,
+        "PrivateDnsNameOptionsOnLaunch": {
+            "HostnameType": "ip-name",
+            "EnableResourceNameDnsARecord": false,
+            "EnableResourceNameDnsAAAARecord": false
+        }
+    }
+}
+
+3. Create private subnet
+aws ec2 create-subnet \
+    --vpc-id vpc-08efc2fa78f0c7636 \
+    --cidr-block 10.1.2.0/24
+{
+    "Subnet": {
+        "AvailabilityZone": "us-east-1e",
+        "AvailabilityZoneId": "use1-az3",
+        "AvailableIpAddressCount": 251,
+        "CidrBlock": "10.1.2.0/24",
+        "DefaultForAz": false,
+        "MapPublicIpOnLaunch": false,
+        "State": "available",
+        "SubnetId": "subnet-04c40fff2f3366be8",
+        "VpcId": "vpc-08efc2fa78f0c7636",
+        "OwnerId": "232112744116",
+        "AssignIpv6AddressOnCreation": false,
+        "Ipv6CidrBlockAssociationSet": [],
+        "SubnetArn": "arn:aws:ec2:us-east-1:232112744116:subnet/subnet-04c40fff2f3366be8",
+        "EnableDns64": false,
+        "Ipv6Native": false,
+        "PrivateDnsNameOptionsOnLaunch": {
+            "HostnameType": "ip-name",
+            "EnableResourceNameDnsARecord": false,
+            "EnableResourceNameDnsAAAARecord": false
+        }
+    }
+}
+
+4. Create internet gateway
+aws ec2 create-internet-gateway
+{
+    "InternetGateway": {
+        "Attachments": [],
+        "InternetGatewayId": "igw-009cc85624a7e4266",
+        "OwnerId": "232112744116",
+        "Tags": []
+    }
+}
+
+5. Attach internet gateway
+aws ec2 attach-internet-gateway \
+    --internet-gateway-id igw-009cc85624a7e4266 \
+    --vpc-id vpc-08efc2fa78f0c7636
+
+6. Allocate Elastic IP for NAT Gateway
+aws ec2 allocate-address
+{
+    "PublicIp": "44.211.21.36",
+    "AllocationId": "eipalloc-078274601b82357c4",
+    "PublicIpv4Pool": "amazon",
+    "NetworkBorderGroup": "us-east-1",
+    "Domain": "vpc"
+}
+
+7. Create NAT Gateway in public subnet
+aws ec2 create-nat-gateway \
+    --subnet-id subnet-0b1ff86d0b693ff58 \
+    --allocation-id eipalloc-078274601b82357c4
+{
+    "ClientToken": "6dbb74ae-c34a-4c92-860c-72c3113da4b6",
+    "NatGateway": {
+        "CreateTime": "2022-11-26T10:02:37.000Z",
+        "NatGatewayAddresses": [
+            {
+                "AllocationId": "eipalloc-078274601b82357c4"
+            }
+        ],
+        "NatGatewayId": "nat-011645a1e4d21d86f",
+        "State": "pending",
+        "SubnetId": "subnet-0b1ff86d0b693ff58",
+        "VpcId": "vpc-08efc2fa78f0c7636",
+        "ConnectivityType": "public"
+    }
+}
+
+8. Create routing table for public subnet
+aws ec2 create-route-table --vpc-id vpc-08efc2fa78f0c7636
+{
+    "RouteTable": {
+        "Associations": [],
+        "PropagatingVgws": [],
+        "RouteTableId": "rtb-0e975383e64194e8d",
+        "Routes": [
+            {
+                "DestinationCidrBlock": "10.1.0.0/16",
+                "GatewayId": "local",
+                "Origin": "CreateRouteTable",
+                "State": "active"
+            }
+        ],
+        "Tags": [],
+        "VpcId": "vpc-08efc2fa78f0c7636",
+        "OwnerId": "232112744116"
+    }
+}
+
+9. Create default route for public subnet
+aws ec2 create-route \
+    --route-table-id rtb-0e975383e64194e8d \
+    --destination-cidr-block 0.0.0.0/0 \
+    --gateway-id igw-009cc85624a7e4266
+{
+    "Return": true
+}
+
+10.Associate routing table with public subnet
+aws ec2 associate-route-table \
+    --route-table-id rtb-0e975383e64194e8d \
+    --subnet-id subnet-0b1ff86d0b693ff58
+{
+    "AssociationId": "rtbassoc-0c7996841fb560893",
+    "AssociationState": {
+        "State": "associated"
+    }
+}
+
+11.Configure auto assigning of public IP addresses
+aws ec2 modify-subnet-attribute \
+    --subnet-id subnet-0b1ff86d0b693ff58 \
+    --map-public-ip-on-launch
+
+12.Create routing table for private subnet
+aws ec2 create-route-table --vpc-id vpc-08efc2fa78f0c7636
+{
+    "RouteTable": {
+        "Associations": [],
+        "PropagatingVgws": [],
+        "RouteTableId": "rtb-04951e308e5b580b2",
+        "Routes": [
+            {
+                "DestinationCidrBlock": "10.1.0.0/16",
+                "GatewayId": "local",
+                "Origin": "CreateRouteTable",
+                "State": "active"
+            }
+        ],
+        "Tags": [],
+        "VpcId": "vpc-08efc2fa78f0c7636",
+        "OwnerId": "232112744116"
+    }
+}
+
+13.Create default route for private subnet
+aws ec2 create-route \
+    --route-table-id rtb-04951e308e5b580b2 \
+    --destination-cidr-block 0.0.0.0/0 \
+    --nat-gateway-id nat-011645a1e4d21d86f
+{
+    "Return": true
+}
+
+14.Associate routing table with private subnet
+aws ec2 associate-route-table \
+    --route-table-id rtb-04951e308e5b580b2 \
+    --subnet-id subnet-04c40fff2f3366be8
+{
+    "AssociationId": "rtbassoc-08ec7d1439743b4dd",
+    "AssociationState": {
+        "State": "associated"
+    }
+}
+
+15.Create security group for public subnet
+aws ec2 create-security-group \
+    --group-name public-sg \
+    --description "Public security group" \
+    --vpc-id vpc-08efc2fa78f0c7636
+{
+    "GroupId": "sg-09f633bd1739db5b6"
+}
+
+16.Create security group for private subnet
+aws ec2 create-security-group \
+    --group-name private-sg \
+    --description "Private security group" \
+    --vpc-id vpc-08efc2fa78f0c7636
+{
+    "GroupId": "sg-05d6d5e76487e64ec"
+}
+
+17.Grant SSH access to public subnet
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-09f633bd1739db5b6 \
+    --protocol tcp \
+    --port 22 \
+    --cidr 176.38.5.182/32
+{
+    "Return": true,
+    "SecurityGroupRules": [
+        {
+            "SecurityGroupRuleId": "sgr-02dcd9aa42a88c954",
+            "GroupId": "sg-09f633bd1739db5b6",
+            "GroupOwnerId": "232112744116",
+            "IsEgress": false,
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "CidrIpv4": "176.38.5.182/32"
+        }
+    ]
+}
+
+18.Permit all traffic from public subnet to private subnet
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-05d6d5e76487e64ec \
+    --protocol all \
+    --source-group sg-09f633bd1739db5b6
+{
+    "Return": true,
+    "SecurityGroupRules": [
+        {
+            "SecurityGroupRuleId": "sgr-06df577ed37f4f772",
+            "GroupId": "sg-05d6d5e76487e64ec",
+            "GroupOwnerId": "232112744116",
+            "IsEgress": false,
+            "IpProtocol": "-1",
+            "FromPort": -1,
+            "ToPort": -1,
+            "ReferencedGroupInfo": {
+                "GroupId": "sg-09f633bd1739db5b6",
+                "UserId": "232112744116"
+            }
+        }
+    ]
+}
+
+19.Run EC2 instance in the public subnet
+aws ec2 run-instances \
+    --image-id ami-077e9107faad3854a \
+    --count 1 \
+    --instance-type t2.micro \
+    --key-name aws \
+    --security-group-ids sg-09f633bd1739db5b6 \
+    --subnet-id subnet-0b1ff86d0b693ff58
+{
+    "Groups": [],
+    "Instances": [
+        {
+            "AmiLaunchIndex": 0,
+            "ImageId": "ami-077e9107faad3854a",
+            "InstanceId": "i-0a9adbf5f544fac39",
+            "InstanceType": "t2.micro",
+            "KeyName": "aws",
+            "LaunchTime": "2022-11-26T10:09:43.000Z",
+            "Monitoring": {
+                "State": "disabled"
+            },
+            "Placement": {
+                "AvailabilityZone": "us-east-1e",
+                "GroupName": "",
+                "Tenancy": "default"
+            },
+            "PrivateDnsName": "ip-10-1-1-191.ec2.internal",
+            "PrivateIpAddress": "10.1.1.191",
+            "ProductCodes": [],
+            "PublicDnsName": "",
+            "State": {
+                "Code": 0,
+                "Name": "pending"
+            },
+            "StateTransitionReason": "",
+            "SubnetId": "subnet-0b1ff86d0b693ff58",
+            "VpcId": "vpc-08efc2fa78f0c7636",
+            "Architecture": "x86_64",
+            "BlockDeviceMappings": [],
+            "ClientToken": "f9a3f104-876c-42a6-8ce8-0b5af1930e10",
+            "EbsOptimized": false,
+            "EnaSupport": true,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+                {
+                    "Attachment": {
+                        "AttachTime": "2022-11-26T10:09:43.000Z",
+                        "AttachmentId": "eni-attach-0c9c090823b5a15ae",
+                        "DeleteOnTermination": true,
+                        "DeviceIndex": 0,
+                        "Status": "attaching",
+                        "NetworkCardIndex": 0
+                    },
+                    "Description": "",
+                    "Groups": [
+                        {
+                            "GroupName": "public-sg",
+                            "GroupId": "sg-09f633bd1739db5b6"
+                        }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "06:46:ea:8b:6a:d9",
+                    "NetworkInterfaceId": "eni-0ca39a8bc7aa355f6",
+                    "OwnerId": "232112744116",
+                    "PrivateIpAddress": "10.1.1.191",
+                    "PrivateIpAddresses": [
+                        {
+                            "Primary": true,
+                            "PrivateIpAddress": "10.1.1.191"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-0b1ff86d0b693ff58",
+                    "VpcId": "vpc-08efc2fa78f0c7636",
+                    "InterfaceType": "interface"
+                }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+                {
+                    "GroupName": "public-sg",
+                    "GroupId": "sg-09f633bd1739db5b6"
+                }
+            ],
+            "SourceDestCheck": true,
+            "StateReason": {
+                "Code": "pending",
+                "Message": "pending"
+            },
+            "VirtualizationType": "hvm",
+            "CpuOptions": {
+                "CoreCount": 1,
+                "ThreadsPerCore": 1
+            },
+            "CapacityReservationSpecification": {
+                "CapacityReservationPreference": "open"
+            },
+            "MetadataOptions": {
+                "State": "pending",
+                "HttpTokens": "optional",
+                "HttpPutResponseHopLimit": 1,
+                "HttpEndpoint": "enabled",
+                "HttpProtocolIpv6": "disabled",
+                "InstanceMetadataTags": "disabled"
+            },
+            "EnclaveOptions": {
+                "Enabled": false
+            },
+            "PrivateDnsNameOptions": {
+                "HostnameType": "ip-name",
+                "EnableResourceNameDnsARecord": false,
+                "EnableResourceNameDnsAAAARecord": false
+            },
+            "MaintenanceOptions": {
+                "AutoRecovery": "default"
+            }
+        }
+    ],
+    "OwnerId": "232112744116",
+    "ReservationId": "r-0ab0f76a75b0e22d1"
+}
+
+
+20.Run EC2 instance in the private subnet
+aws ec2 run-instances \
+    --image-id ami-077e9107faad3854a \
+    --count 1 \
+    --instance-type t2.micro \
+    --key-name aws \
+    --security-group-ids sg-05d6d5e76487e64ec \
+    --subnet-id subnet-04c40fff2f3366be8
+{
+    "Groups": [],
+    "Instances": [
+        {
+            "AmiLaunchIndex": 0,
+            "ImageId": "ami-077e9107faad3854a",
+            "InstanceId": "i-097523cecc6146e0d",
+            "InstanceType": "t2.micro",
+            "KeyName": "aws",
+            "LaunchTime": "2022-11-26T10:10:05.000Z",
+            "Monitoring": {
+                "State": "disabled"
+            },
+            "Placement": {
+                "AvailabilityZone": "us-east-1e",
+                "GroupName": "",
+                "Tenancy": "default"
+            },
+            "PrivateDnsName": "ip-10-1-2-253.ec2.internal",
+            "PrivateIpAddress": "10.1.2.253",
+            "ProductCodes": [],
+            "PublicDnsName": "",
+            "State": {
+                "Code": 0,
+                "Name": "pending"
+            },
+            "StateTransitionReason": "",
+            "SubnetId": "subnet-04c40fff2f3366be8",
+            "VpcId": "vpc-08efc2fa78f0c7636",
+            "Architecture": "x86_64",
+            "BlockDeviceMappings": [],
+            "ClientToken": "cd1fbfb1-52e6-4cfb-8ab5-6965448a0dae",
+            "EbsOptimized": false,
+            "EnaSupport": true,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+                {
+                    "Attachment": {
+                        "AttachTime": "2022-11-26T10:10:05.000Z",
+                        "AttachmentId": "eni-attach-04caf206f2acf0ac5",
+                        "DeleteOnTermination": true,
+                        "DeviceIndex": 0,
+                        "Status": "attaching",
+                        "NetworkCardIndex": 0
+                    },
+                    "Description": "",
+                    "Groups": [
+                        {
+                            "GroupName": "private-sg",
+                            "GroupId": "sg-05d6d5e76487e64ec"
+                        }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "06:02:01:f1:7a:01",
+                    "NetworkInterfaceId": "eni-01811f9dc663eb20e",
+                    "OwnerId": "232112744116",
+                    "PrivateIpAddress": "10.1.2.253",
+                    "PrivateIpAddresses": [
+                        {
+                            "Primary": true,
+                            "PrivateIpAddress": "10.1.2.253"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-04c40fff2f3366be8",
+                    "VpcId": "vpc-08efc2fa78f0c7636",
+                    "InterfaceType": "interface"
+                }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+                {
+                    "GroupName": "private-sg",
+                    "GroupId": "sg-05d6d5e76487e64ec"
+                }
+            ],
+            "SourceDestCheck": true,
+            "StateReason": {
+                "Code": "pending",
+                "Message": "pending"
+            },
+            "VirtualizationType": "hvm",
+            "CpuOptions": {
+                "CoreCount": 1,
+                "ThreadsPerCore": 1
+            },
+            "CapacityReservationSpecification": {
+                "CapacityReservationPreference": "open"
+            },
+            "MetadataOptions": {
+                "State": "pending",
+                "HttpTokens": "optional",
+                "HttpPutResponseHopLimit": 1,
+                "HttpEndpoint": "enabled",
+                "HttpProtocolIpv6": "disabled",
+                "InstanceMetadataTags": "disabled"
+            },
+            "EnclaveOptions": {
+                "Enabled": false
+            },
+            "PrivateDnsNameOptions": {
+                "HostnameType": "ip-name",
+                "EnableResourceNameDnsARecord": false,
+                "EnableResourceNameDnsAAAARecord": false
+            },
+            "MaintenanceOptions": {
+                "AutoRecovery": "default"
+            }
+        }
+    ],
+    "OwnerId": "232112744116",
+    "ReservationId": "r-035c432924230f04d"
+}
+
+21.Connect to the instance in the public subnet and check Internet connectivity
+aws ec2 describe-instances --instance-ids i-0a9adbf5f544fac39 | jq -r '.Reservations[] | .Instances[] | .PublicIpAddress'
+54.82.197.14
+
+ssh -i aws.pem ubuntu@54.82.197.14
+
+22.Connect to the instance in the private subnet and check Internet connectivity
+Try to get public IP
+aws ec2 describe-instances --instance-ids i-097523cecc6146e0d | jq -r '.Reservations[] | .Instances[] | .PublicIpAddress'
+- empty -
+
+Try to get private IP
+aws ec2 describe-instances --instance-ids i-097523cecc6146e0d | jq -r '.Reservations[] | .Instances[] | .PrivateIpAddress'
+10.1.2.253
+
+Copy ssh-key to public instance (not securely, must create new pair, but it's quicker for a now)
+scp -i aws.pem aws.pem ubuntu@54.82.197.14:~/aws.pem
+
+Login from public instance to private
+ubuntu@ip-10-1-1-191:~$ ssh -i aws.pem ubuntu@10.1.2.253
+Welcome to Ubuntu 18.04.6 LTS (GNU/Linux 5.4.0-1089-aws x86_64)

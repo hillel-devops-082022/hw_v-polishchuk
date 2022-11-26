@@ -1,0 +1,25 @@
+aws ec2 terminate-instances --instance-ids i-0cd44c74f8620bcde
+{
+    "TerminatingInstances": [
+        {
+            "CurrentState": {
+                "Code": 32,
+                "Name": "shutting-down"
+            },
+            "InstanceId": "i-0cd44c74f8620bcde",
+            "PreviousState": {
+                "Code": 16,
+                "Name": "running"
+            }
+        }
+    ]
+}
+
+aws ec2 delete-security-group --group-id sg-02cd773ac93e6ef3a
+aws ec2 delete-route --route-table-id rtb-023e21f34da87f73f --destination-cidr-block 0.0.0.0/0
+aws ec2 disassociate-route-table --association-id rtbassoc-01aef95d0e9126ab2
+aws ec2 delete-route-table --route-table-id rtb-023e21f34da87f73f
+aws ec2 detach-internet-gateway --vpc-id vpc-0c9398af5b985b1cc --internet-gateway-id igw-0ae68284955cd11cf
+aws ec2 delete-internet-gateway --internet-gateway-id igw-0ae68284955cd11cf
+aws ec2 delete-subnet --subnet-id subnet-0db916c76dc410dda
+aws ec2 delete-vpc --vpc-id vpc-0c9398af5b985b1cc

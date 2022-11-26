@@ -1,0 +1,46 @@
+aws ec2 terminate-instances --instance-ids i-0a9adbf5f544fac39 i-097523cecc6146e0d
+{
+    "TerminatingInstances": [
+        {
+            "CurrentState": {
+                "Code": 32,
+                "Name": "shutting-down"
+            },
+            "InstanceId": "i-0a9adbf5f544fac39",
+            "PreviousState": {
+                "Code": 16,
+                "Name": "running"
+            }
+        },
+        {
+            "CurrentState": {
+                "Code": 48,
+                "Name": "terminated"
+            },
+            "InstanceId": "i-097523cecc6146e0d",
+            "PreviousState": {
+                "Code": 48,
+                "Name": "terminated"
+            }
+        }
+    ]
+}
+
+aws ec2 delete-security-group --group-id sg-05d6d5e76487e64ec
+aws ec2 delete-security-group --group-id sg-09f633bd1739db5b6
+aws ec2 delete-route --route-table-id rtb-04951e308e5b580b2 --destination-cidr-block 0.0.0.0/0
+aws ec2 delete-route --route-table-id rtb-0e975383e64194e8d --destination-cidr-block 0.0.0.0/0
+aws ec2 disassociate-route-table --association-id rtbassoc-08ec7d1439743b4dd
+aws ec2 disassociate-route-table --association-id rtbassoc-0c7996841fb560893
+aws ec2 delete-route-table --route-table-id rtb-04951e308e5b580b2
+aws ec2 delete-route-table --route-table-id rtb-0e975383e64194e8d
+aws ec2 delete-nat-gateway --nat-gateway-id nat-011645a1e4d21d86f
+{
+    "NatGatewayId": "nat-011645a1e4d21d86f"
+}
+aws ec2 release-address --allocation-id eipalloc-078274601b82357c4
+aws ec2 detach-internet-gateway --internet-gateway-id igw-009cc85624a7e4266 --vpc-id vpc-08efc2fa78f0c7636
+aws ec2 delete-internet-gateway --internet-gateway-id igw-009cc85624a7e4266
+aws ec2 delete-subnet --subnet-id subnet-04c40fff2f3366be8
+aws ec2 delete-subnet --subnet-id subnet-0b1ff86d0b693ff58
+aws ec2 delete-vpc --vpc-id vpc-08efc2fa78f0c7636

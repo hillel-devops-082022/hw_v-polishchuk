@@ -1,0 +1,317 @@
+1. Create VPC
+aws ec2 create-vpc \
+    --cidr-block 10.1.0.0/16 \
+    --tag-specification ResourceType=vpc,Tags='[{Key=Name,Value="Test"}]'
+{
+    "Vpc": {
+        "CidrBlock": "10.1.0.0/16",
+        "DhcpOptionsId": "dopt-0764711bb4f2e74a6",
+        "State": "pending",
+        "VpcId": "vpc-0c9398af5b985b1cc",
+        "OwnerId": "232112744116",
+        "InstanceTenancy": "default",
+        "Ipv6CidrBlockAssociationSet": [],
+        "CidrBlockAssociationSet": [
+            {
+                "AssociationId": "vpc-cidr-assoc-0750526b31b294b2d",
+                "CidrBlock": "10.1.0.0/16",
+                "CidrBlockState": {
+                    "State": "associated"
+                }
+            }
+        ],
+        "IsDefault": false,
+        "Tags": [
+            {
+                "Key": "Name",
+                "Value": "Test"
+            }
+        ]
+    }
+}
+
+2. Create public subnet
+aws ec2 create-subnet \
+    --vpc-id vpc-0c9398af5b985b1cc \
+    --cidr-block 10.1.1.0/24 \
+    --availability-zone us-east-1a \
+    --tag-specifications ResourceType=subnet,Tags='[{Key=Name,Value=Public}]'
+{
+    "Subnet": {
+        "AvailabilityZone": "us-east-1a",
+        "AvailabilityZoneId": "use1-az2",
+        "AvailableIpAddressCount": 251,
+        "CidrBlock": "10.1.1.0/24",
+        "DefaultForAz": false,
+        "MapPublicIpOnLaunch": false,
+        "State": "available",
+        "SubnetId": "subnet-0db916c76dc410dda",
+        "VpcId": "vpc-0c9398af5b985b1cc",
+        "OwnerId": "232112744116",
+        "AssignIpv6AddressOnCreation": false,
+        "Ipv6CidrBlockAssociationSet": [],
+        "Tags": [
+            {
+                "Key": "Name",
+                "Value": "Public"
+            }
+        ],
+        "SubnetArn": "arn:aws:ec2:us-east-1:232112744116:subnet/subnet-0db916c76dc410dda",
+        "EnableDns64": false,
+        "Ipv6Native": false,
+        "PrivateDnsNameOptionsOnLaunch": {
+            "HostnameType": "ip-name",
+            "EnableResourceNameDnsARecord": false,
+            "EnableResourceNameDnsAAAARecord": false
+        }
+    }
+}
+
+3. Create Internet gateway for public subnet
+aws ec2 create-internet-gateway \
+    --tag-specifications ResourceType=internet-gateway,Tags='[{Key=Name,Value=test-igw}]'
+{
+    "InternetGateway": {
+        "Attachments": [],
+        "InternetGatewayId": "igw-0ae68284955cd11cf",
+        "OwnerId": "232112744116",
+        "Tags": [
+            {
+                "Key": "Name",
+                "Value": "test-igw"
+            }
+        ]
+    }
+}
+
+4. Attach Internet gateway to VPC
+aws ec2 attach-internet-gateway \
+    --vpc-id vpc-0c9398af5b985b1cc \
+    --internet-gateway-id igw-0ae68284955cd11cf
+
+5. Create routing table for public subnet
+aws ec2 create-route-table \
+    --vpc-id vpc-0c9398af5b985b1cc \
+    --tag-specifications ResourceType=route-table,Tags='[{Key=Name,Value=Public}]'
+{
+    "RouteTable": {
+        "Associations": [],
+        "PropagatingVgws": [],
+        "RouteTableId": "rtb-023e21f34da87f73f",
+        "Routes": [
+            {
+                "DestinationCidrBlock": "10.1.0.0/16",
+                "GatewayId": "local",
+                "Origin": "CreateRouteTable",
+                "State": "active"
+            }
+        ],
+        "Tags": [
+            {
+                "Key": "Name",
+                "Value": "Public"
+            }
+        ],
+        "VpcId": "vpc-0c9398af5b985b1cc",
+        "OwnerId": "232112744116"
+    }
+}
+
+6. Create default route pointing to Internet gateway
+aws ec2 create-route \
+    --route-table-id rtb-023e21f34da87f73f \
+    --destination-cidr-block 0.0.0.0/0 \
+    --gateway-id igw-0ae68284955cd11cf
+{
+    "Return": true
+}
+
+7. Associate routing table with the public subnet
+aws ec2 associate-route-table \
+    --route-table-id rtb-023e21f34da87f73f \
+    --subnet-id subnet-0db916c76dc410dda
+{
+    "AssociationId": "rtbassoc-01aef95d0e9126ab2",
+    "AssociationState": {
+        "State": "associated"
+    }
+}
+
+8. Configure auto assigning of IP addresses for instances in the public subnet
+aws ec2 modify-subnet-attribute \
+    --subnet-id subnet-0db916c76dc410dda \
+    --map-public-ip-on-launch
+
+9. Create security group for VPC
+aws ec2 create-security-group \
+    --group-name aws-ssh-sg \
+    --description "SSH access for AWS" \
+    --vpc-id vpc-0c9398af5b985b1cc
+{
+    "GroupId": "sg-02cd773ac93e6ef3a"
+}
+
+10.Permit SSH access for instances inside the security group
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-02cd773ac93e6ef3a \
+    --protocol tcp \
+    --port 22 \
+    --cidr 176.38.5.182/32
+{
+    "Return": true,
+    "SecurityGroupRules": [
+        {
+            "SecurityGroupRuleId": "sgr-07cd74b1595decf3a",
+            "GroupId": "sg-02cd773ac93e6ef3a",
+            "GroupOwnerId": "232112744116",
+            "IsEgress": false,
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "CidrIpv4": "176.38.5.182/32"
+        }
+    ]
+}
+
+11.Run EC2 instance in the public subnet
+aws ec2 run-instances \
+    --image-id ami-077e9107faad3854a \
+    --count 1 \
+    --instance-type t2.micro \
+    --key-name aws \
+    --security-group-ids sg-02cd773ac93e6ef3a \
+    --subnet-id subnet-0db916c76dc410dda
+{
+    "Groups": [],
+    "Instances": [
+        {
+            "AmiLaunchIndex": 0,
+            "ImageId": "ami-077e9107faad3854a",
+            "InstanceId": "i-0cd44c74f8620bcde",
+            "InstanceType": "t2.micro",
+            "KeyName": "aws",
+            "LaunchTime": "2022-11-26T09:16:53.000Z",
+            "Monitoring": {
+                "State": "disabled"
+            },
+            "Placement": {
+                "AvailabilityZone": "us-east-1a",
+                "GroupName": "",
+                "Tenancy": "default"
+            },
+            "PrivateDnsName": "ip-10-1-1-181.ec2.internal",
+            "PrivateIpAddress": "10.1.1.181",
+            "ProductCodes": [],
+            "PublicDnsName": "",
+            "State": {
+                "Code": 0,
+                "Name": "pending"
+            },
+            "StateTransitionReason": "",
+            "SubnetId": "subnet-0db916c76dc410dda",
+            "VpcId": "vpc-0c9398af5b985b1cc",
+            "Architecture": "x86_64",
+            "BlockDeviceMappings": [],
+            "ClientToken": "6177b7fb-fd4b-4d98-a6a6-5d6bdbf7d4a3",
+            "EbsOptimized": false,
+            "EnaSupport": true,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+                {
+                    "Attachment": {
+                        "AttachTime": "2022-11-26T09:16:53.000Z",
+                        "AttachmentId": "eni-attach-034ecebe549c80ee2",
+                        "DeleteOnTermination": true,
+                        "DeviceIndex": 0,
+                        "Status": "attaching",
+                        "NetworkCardIndex": 0
+                    },
+                    "Description": "",
+                    "Groups": [
+                        {
+                            "GroupName": "aws-ssh-sg",
+                            "GroupId": "sg-02cd773ac93e6ef3a"
+                        }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "12:8a:97:c7:f0:99",
+                    "NetworkInterfaceId": "eni-04f270d34385df688",
+                    "OwnerId": "232112744116",
+                    "PrivateIpAddress": "10.1.1.181",
+                    "PrivateIpAddresses": [
+                        {
+                            "Primary": true,
+                            "PrivateIpAddress": "10.1.1.181"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-0db916c76dc410dda",
+                    "VpcId": "vpc-0c9398af5b985b1cc",
+                    "InterfaceType": "interface"
+                }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+                {
+                    "GroupName": "aws-ssh-sg",
+                    "GroupId": "sg-02cd773ac93e6ef3a"
+                }
+            ],
+            "SourceDestCheck": true,
+            "StateReason": {
+                "Code": "pending",
+                "Message": "pending"
+            },
+            "VirtualizationType": "hvm",
+            "CpuOptions": {
+                "CoreCount": 1,
+                "ThreadsPerCore": 1
+            },
+            "CapacityReservationSpecification": {
+                "CapacityReservationPreference": "open"
+            },
+            "MetadataOptions": {
+                "State": "pending",
+                "HttpTokens": "optional",
+                "HttpPutResponseHopLimit": 1,
+                "HttpEndpoint": "enabled",
+                "HttpProtocolIpv6": "disabled",
+                "InstanceMetadataTags": "disabled"
+            },
+            "EnclaveOptions": {
+                "Enabled": false
+            },
+            "PrivateDnsNameOptions": {
+                "HostnameType": "ip-name",
+                "EnableResourceNameDnsARecord": false,
+                "EnableResourceNameDnsAAAARecord": false
+            },
+            "MaintenanceOptions": {
+                "AutoRecovery": "default"
+            }
+        }
+    ],
+    "OwnerId": "232112744116",
+    "ReservationId": "r-051bcb2c8e2e7be3a"
+}
+
+12.Connect to the instance and check Internet connectivity
+aws ec2 describe-instances --instance-ids i-0cd44c74f8620bcde | jq -r '.Reservations[] | .Instances[] | .PublicIpAddress'
+54.242.111.137
+
+ssh -i aws.pem ubuntu@54.242.111.137
+
+Welcome to Ubuntu 18.04.6 LTS (GNU/Linux 5.4.0-1089-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Sat Nov 26 09:28:12 UTC 2022
+
+  System load:  0.13              Processes:           94
+  Usage of /:   16.8% of 7.57GB   Users logged in:     0
+  Memory usage: 19%               IP address for eth0: 10.1.1.181
+  Swap usage:   0%
