@@ -31,3 +31,14 @@
   docker swarm init
   docker stack deploy -c docker-compose.yml -c docker-compose.stack.yml realworld
   ````
+  
+### HW #19. Terraform
+- Get terraform code for creating AWS VPC, private and public subnets, security groups
+- Init, validate, run and destroy AWS resources.
+  ````
+  terraform init
+  terraform plan
+  terraform apply
+  terraform state list
+  terraform destroy
+  ````
