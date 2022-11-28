@@ -32,6 +32,12 @@
   docker stack deploy -c docker-compose.yml -c docker-compose.stack.yml realworld
   ````
   
+### HW #18. AWS CLI
+- Work with basic AWS object via CLI
+- Create and destroy simple structure for private and public instances
+- `start1.txt` and `stop1.txt` - listing for the first part of the task
+- `start2.txt` and `stop2.txt` - listing for the second part of the task
+
 ### HW #19. Terraform
 - Get terraform code for creating AWS VPC, private and public subnets, security groups
 - Init, validate, run and destroy AWS resources.
