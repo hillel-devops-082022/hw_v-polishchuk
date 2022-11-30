@@ -90,11 +90,7 @@ module "ec2_instance_private" {
   ami                         = var.ec2_instance_ami == "" ? data.aws_ami.ubuntu.image_id : var.ec2_instance_ami
   instance_type               = var.ec2_instance_type
   key_name                    = var.aws_key
-  vpc_security_group_ids      = [
-    module.security_group_http.security_group_id,
-    module.security_group_https.security_group_id,
-    module.security_group_ssh.security_group_id
-  ]
+  vpc_security_group_ids      = [module.security_group_ssh.security_group_id]
   subnet_id                   = module.vpc.private_subnets[0]
   associate_public_ip_address = false
 
