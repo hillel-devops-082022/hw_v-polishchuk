@@ -48,3 +48,8 @@
   terraform state list
   terraform destroy
   ````
+  
+### HW #20. Terraform modules
+- Work with terraform-aws-vpc, terraform-aws-security-group and terraform-aws-ec2-instance modules
+- Build project with creating VPC, 2 subnets (private and public), 3 security groups (http, https, ssh) and variable amount of instances (private and public).
+- Empty Public IP for private instances in output just illustrates that they haven't public IP.
