@@ -12,7 +12,7 @@ variable "aws_key" {
 variable "private_key_path" {
   type        = string
   description = "Path to SSH private key"
-  default     = "~/aws.pem"
+  default     = "./.keys/aws.pem"
 }
 variable "sg_ssh_cidr" {
   description = "Allowed CIDR for SSH connection to instances (like \"176.38.5.182/32\")"
