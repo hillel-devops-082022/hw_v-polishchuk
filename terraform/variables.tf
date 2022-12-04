@@ -20,7 +20,7 @@ variable "sg_ssh_cidr" {
   default     = "176.38.5.182/32"
 }
 variable "tags" {
-  type    = map(string)
+  type = map(string)
   default = {
     Team    = "hillel_devops"
     Project = "realworld"
