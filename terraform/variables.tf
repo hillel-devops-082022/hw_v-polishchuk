@@ -16,6 +16,9 @@ variable "sg_ssh_cidr" {
   description = "Allowed CIDR for SSH connection to instances (like \"176.38.5.182/32\")"
   type        = string
 }
+variable "aws_region" {
+  type    = string
+}
 variable "tags" {
   type = map(string)
   default = {
