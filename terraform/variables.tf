@@ -6,18 +6,15 @@ variable "instance_count" {
 }
 variable "aws_key" {
   type        = string
-  description = "AWS key for access Instances"
-  default     = "aws"
+  description = "AWS key for access Instances (like \"key_name\")"
 }
 variable "private_key_path" {
   type        = string
-  description = "Path to SSH private key"
-  default     = "./.keys/aws.pem"
+  description = "Path to SSH private key (like \"./keys/key_name.pem\""
 }
 variable "sg_ssh_cidr" {
   description = "Allowed CIDR for SSH connection to instances (like \"176.38.5.182/32\")"
   type        = string
-  default     = "176.38.5.182/32"
 }
 variable "tags" {
   type = map(string)
