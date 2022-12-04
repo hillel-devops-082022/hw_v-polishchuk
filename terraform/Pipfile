@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 ansible = "==2.10"
+boto3 = "==1.26"
 
 [dev-packages]
 
