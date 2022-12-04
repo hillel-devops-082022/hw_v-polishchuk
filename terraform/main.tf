@@ -92,9 +92,9 @@ resource "aws_elb" "elb" {
     for_each = ["80", "443"]
     content {
       instance_port     = listener.value
-      instance_protocol = listener.value == 80 ? "http" : "https"
+      instance_protocol = "http"
       lb_port           = listener.value
-      lb_protocol       = listener.value == 80 ? "http" : "https"
+      lb_protocol       = "http"
     }
   }
 
