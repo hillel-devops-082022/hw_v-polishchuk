@@ -1,20 +1,28 @@
+variable "instance_type" {
+  default = "t2.micro"
+}
+variable "instance_count" {
+  default = 2
+}
+variable "aws_key" {
+  type        = string
+  description = "AWS key for access Instances (like \"key_name\")"
+}
+variable "private_key_path" {
+  type        = string
+  description = "Path to SSH private key (like \"./keys/key_name.pem\""
+}
+variable "sg_ssh_cidr" {
+  description = "Allowed CIDR for SSH connection to instances (like \"176.38.5.182/32\")"
+  type        = string
+}
 variable "aws_region" {
-  default = "us-west-2"
-}
-variable "cidr" {
-  default = "10.10.0.0/16"
-}
-variable "cidr_public" {
-  default = "10.10.10.0/24"
-}
-variable "cidr_private" {
-  default = "10.10.20.0/24"
+  type    = string
 }
 variable "tags" {
-  type = map(any)
+  type = map(string)
   default = {
-    Team        = "hillel devops"
-    Project     = "vpc"
-    Environment = "dev"
+    Team    = "hillel_devops"
+    Project = "realworld"
   }
 }

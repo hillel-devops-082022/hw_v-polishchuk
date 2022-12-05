@@ -1,0 +1,17 @@
+---
+- name: Install python && nginx
+  hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python"
+
+  tasks:
+    - name: Install python for Ansible
+      raw: test -e /usr/bin/python || apt -y update && apt install -y python-minimal
+      changed_when: false
+
+    - name: Update repositories cache and install "nginx" package
+      apt:
+        name: nginx
+        update_cache: yes

@@ -1,114 +1,108 @@
-# VPC and subnets
-resource "aws_vpc" "this" {
-  cidr_block = var.cidr
-  tags       = var.tags
-}
-resource "aws_subnet" "public" {
-  vpc_id                  = aws_vpc.this.id
-  cidr_block              = var.cidr_public
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "public"
-  }
-}
-resource "aws_subnet" "private" {
-  vpc_id     = aws_vpc.this.id
-  cidr_block = var.cidr_private
-
-  tags = {
-    Name = "private"
-  }
+# Provider
+provider "aws" {
+  region = var.aws_region
 }
 
-# Internet and NAT gateways
-resource "aws_internet_gateway" "this" {
-  vpc_id = aws_vpc.this.id
+# Get default VPC and AMI
+data "aws_vpc" "default" {
+  default = true
 }
-resource "aws_eip" "this" {
-  vpc        = true
+data "aws_ami" "ubuntu" {
+  most_recent = true
 
-  depends_on = [aws_internet_gateway.this]
-}
-resource "aws_nat_gateway" "default" {
-  allocation_id = aws_eip.this.id
-  subnet_id     = aws_subnet.public.id
-
-  depends_on    = [aws_eip.this]
-}
-
-# Route Table for Public Network
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.this.id
-
-  tags = {
-    Name = "public"
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
   }
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.this.id
-  }
-}
-resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
-  route_table_id = aws_route_table.public.id
-}
-
-# Route Table for Private Network
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.this.id
-
-  tags = {
-    Name = "private"
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    nat_gateway_id         = aws_nat_gateway.default.id
-  }
-}
-resource "aws_route_table_association" "private" {
-  subnet_id      = aws_subnet.private.id
-  route_table_id = aws_route_table.private.id
+  owners = ["099720109477"]
 }
 
 # Create security groups
-resource "aws_security_group" "public" {
-  vpc_id      = aws_vpc.this.id
-  description = "Allow SSH inbound traffic"
-  name        = "public"
+resource "aws_security_group" "web" {
+  name        = "web"
+  description = "Allow 80 and 443 inbound traffic"
+  vpc_id      = data.aws_vpc.default.id
 
   ingress {
+    description = "tcp_80"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.default.cidr_block]
+  }
+
+  ingress {
+    description = "tcp_443"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.default.cidr_block]
+  }
+
+  ingress {
+    description = "tcp_22"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+
+    cidr_blocks = [
+      var.sg_ssh_cidr,
+      data.aws_vpc.default.cidr_block
+    ]
+  }
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+  tags = {
+    Name = "web"
   }
 }
-resource "aws_security_group" "private" {
-  vpc_id      = aws_vpc.this.id
-  description = "Allow inbound traffic from public subnet"
-  name        = "private"
 
-  ingress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    security_groups = [aws_security_group.public.id]
+# Create instances
+resource "aws_instance" "srv" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
+  count                  = var.instance_count
+  key_name               = var.aws_key
+  vpc_security_group_ids = [aws_security_group.web.id]
+  tags                   = var.tags
+}
+resource "aws_elb" "elb" {
+  name                        = "ec2elb"
+  availability_zones          = aws_instance.srv[*].availability_zone
+  instances                   = aws_instance.srv[*].id
+  cross_zone_load_balancing   = true
+  idle_timeout                = 400
+  connection_draining         = true
+  connection_draining_timeout = 400
+  tags                        = var.tags
+
+  dynamic "listener" {
+    for_each = ["80", "443"]
+    content {
+      instance_port     = listener.value
+      instance_protocol = "http"
+      lb_port           = listener.value
+      lb_protocol       = "http"
+    }
   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    target              = "TCP:22"
+    interval            = 30
   }
 }

@@ -53,3 +53,24 @@
 - Work with terraform-aws-vpc, terraform-aws-security-group and terraform-aws-ec2-instance modules
 - Build project with creating VPC, 2 subnets (private and public), 3 security groups (http, https, ssh) and variable amount of instances (private and public).
 - Empty Public IP for private instances in output just illustrates that they haven't public IP.
+
+### HW #21. Ansible intro
+- Build AWS infrastructure with terraform (2 instances, load balancer and security group)
+- Create Python virtual environment with pipenv (config this environment with .env file, install ansible)
+- Provision created instances with Ansible (install python and nginx)
+
+To run code:
+- Set terraform variables (region and access settings)
+- Create `.env` file from `env_sample`. Fill it with valid credentials
+- In `ansible/ansible.cfg` file set path to `key.pem` file, which must match path from terraform variable
+- Run code with:
+  ````bash
+  terraform init && terraform apply # create AWS infrastructure
+  pipenv sync && pipenv shell # enter virtual environment
+  ansible-playbook --limit tag_Project_realworld playbook.yml # provision instances
+  ```` 
+  
+You can check it by domain form terraform output.
+To destroy your code:
+- Exit from the virtual environment (if you're still there) with `exit`
+- `terraform destroy` to destroy AWS infrastructure
