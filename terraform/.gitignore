@@ -1,6 +1,7 @@
 .terraform/
 .terraform.tfstate.lock.info
 terraform.tfstate*
+terraform.tfvars
 .keys/
 .env
 .vagrant/
