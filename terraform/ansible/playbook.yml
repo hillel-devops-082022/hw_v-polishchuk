@@ -1,17 +1,55 @@
 ---
-- name: Install python && nginx
+- name: Check && install python
   hosts: all
   become: true
   gather_facts: false
   vars:
-    ansible_python_interpreter: "/usr/bin/env python"
+    document_root: /var/www/html
+    app_root: ../sample_html_site
+    ansible_python_interpreter: "/usr/bin/env python3"
 
   tasks:
     - name: Install python for Ansible
-      raw: test -e /usr/bin/python || apt -y update && apt install -y python-minimal
-      changed_when: false
+      raw: test -e /usr/bin/python3 || apt -y update && apt install -y python3-minimal
+      changed_when: False
 
-    - name: Update repositories cache and install "nginx" package
+    - name: Update apt cache and install Nginx
       apt:
         name: nginx
+        state: present
         update_cache: yes
+
+    - name: Copy website files to the server's document root
+      synchronize:
+        src: "{{ app_root }}/"
+        dest: "{{ document_root }}"
+        checksum: yes
+        times: no
+        delete: yes
+        rsync_opts:
+          - "--no-motd"
+
+    - name: Apply Nginx template
+      template:
+        src: ./templates/nginx/default.j2
+        dest: /etc/nginx/sites-available/default
+      notify: Restart Nginx
+
+    - name: Enable new site
+      file:
+        src: /etc/nginx/sites-available/default
+        dest: /etc/nginx/sites-enabled/default
+        state: link
+      notify: Restart Nginx
+
+    - name: Allow all access to tcp port 80
+      ufw:
+        rule: allow
+        port: "80"
+        proto: tcp
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
