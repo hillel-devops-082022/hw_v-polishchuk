@@ -79,4 +79,11 @@ To destroy your code:
 - Work with Ansible vault, handlers, templates
 - Use Ansible as Vagrant provisioner
 - Use Ansible tags for tasks, to run separate tasks from playbook
-- Steps to run and stop code the same as in **HW #21**
+- Work with Ansible-lint
+- Run code with:
+````bash
+  terraform init && terraform apply # create AWS infrastructure
+  pipenv sync && pipenv shell # enter virtual environment
+  cd ansible ; ansible-playbook --limit tag_Project_realworld playbook.yml --ask-vault-pass # provision instances
+```` 
+- Steps to stop code the same as in **HW #21**

@@ -10,7 +10,7 @@
     ansible_python_interpreter: "/usr/bin/env python3"
 
   vars_files:
-    - secrets.yml
+    - ./secrets.yml
 
   tasks:
     - name: Install python for Ansible
@@ -21,7 +21,7 @@
       apt:
         name: python3-pip
         state: present
-        update_cache: yes
+        update_cache: true
 
     - name: Install passlib python package
       pip:
@@ -40,15 +40,15 @@
       apt:
         name: nginx
         state: present
-        update_cache: yes
+        update_cache: true
 
     - name: Copy website files to the server's document root
       synchronize:
         src: "{{ app_root }}/"
         dest: "{{ document_root }}"
-        checksum: yes
-        times: no
-        delete: yes
+        checksum: true
+        times: false
+        delete: true
         rsync_opts:
           - "--no-motd"
       tags: deploy
@@ -57,6 +57,9 @@
       template:
         src: ./templates/nginx/default.j2
         dest: /etc/nginx/sites-available/default
+        owner: root
+        group: www-data
+        mode: 0640
       notify: Restart Nginx
 
     - name: Enable new site
