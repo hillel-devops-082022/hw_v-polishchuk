@@ -3,3 +3,5 @@
 terraform.tfstate*
 .keys/
 .env
+.vagrant/
+ubuntu-bionic-*-console.log
