@@ -7,7 +7,7 @@
   vars:
     document_root: /var/www/html
     app_root: ../sample_html_site
-    ansible_python_interpreter: "/usr/bin/env python3"
+    ansible_python_interpreter: /usr/bin/env python3
 
   vars_files:
     - ./secrets.yml
@@ -50,7 +50,7 @@
         times: false
         delete: true
         rsync_opts:
-          - "--no-motd"
+          - --no-motd
       tags: deploy
 
     - name: Apply Nginx template
