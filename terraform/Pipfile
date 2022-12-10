@@ -7,6 +7,9 @@ name = "pypi"
 ansible = "==2.10"
 boto3 = "==1.26"
 ansible-lint = "==6.9.1"
+molecule = "==4.0.4"
+molecule-vagrant = "==1.0.0"
+pytest-testinfra = "==7.0.0"
 
 [dev-packages]
 
