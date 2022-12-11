@@ -87,3 +87,16 @@ To destroy your code:
   cd ansible ; ansible-playbook --limit tag_Project_realworld playbook.yml --ask-vault-pass # provision instances
 ```` 
 - Steps to stop code the same as in **HW #21**
+
+### HW23. Ansible: Roles, Molecule
+- Create new ansible role
+- Test it with molecule on virtual machine (vagrant + virtualbox)
+- Replace old playbook tasks with role usage
+- Run tests with:
+````bash
+  cd terraform # enter project root
+  pipenv sync && pipenv shell # enter virtual environment
+  cd ansible/roles/nginx # go to the role directory
+  molecule test # run all test on this role
+````
+- Run and stop project the same as **HW22**
