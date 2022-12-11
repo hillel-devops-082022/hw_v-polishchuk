@@ -12,10 +12,10 @@
 
   tasks:
     - name: Copy website files to the server's document root
-      synchronize:
+      ansible.posix.synchronize:
         src: "{{ app_root }}/"
         dest: "{{ document_root }}"
-        checksum: yes
-        times: no
-        delete: yes
+        checksum: true
+        times: false
+        delete: true
       tags: deploy

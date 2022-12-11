@@ -3,6 +3,6 @@
   hosts: all
   become: true
   tasks:
-    - name: "Include nginx"
-      include_role:
-        name: "nginx"
+    - name: Include nginx
+      ansible.builtin.include_role:
+        name: nginx
