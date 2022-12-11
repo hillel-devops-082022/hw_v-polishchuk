@@ -3,8 +3,8 @@ dependency:
   name: galaxy
 driver:
   name: vagrant
-provider:
-  name: virtualbox
+  provider:
+    name: virtualbox
 platforms:
   - name: instance
     box: ubuntu/bionic64
