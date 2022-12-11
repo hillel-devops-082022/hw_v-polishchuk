@@ -1,6 +1,7 @@
 ---
 galaxy_info:
-  author: V. Polischuk
+  role_name: nginx
+  author: me
   description: example_nginx
   company: hillel
   license: GPL-2.0-or-later
