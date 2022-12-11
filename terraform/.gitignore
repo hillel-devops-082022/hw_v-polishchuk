@@ -7,3 +7,4 @@ terraform.tfvars
 .vagrant/
 ubuntu-bionic-*-console.log
 ansible/.vault_password
+ansible/.vault_pass
