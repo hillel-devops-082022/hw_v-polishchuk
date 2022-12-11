@@ -9,7 +9,7 @@
     template:
       src: ../templates/default.j2
       dest: /etc/nginx/sites-available/default
-      notify: Restart Nginx
+    notify: Restart Nginx
 
   - name: Enable new site
     file:
