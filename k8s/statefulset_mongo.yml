@@ -25,7 +25,9 @@ spec:
             claimName: mongo-pvc
       containers:
         - name: mongo-realworld
-          image: mongo:latest
+          image: mongo:2.2
+          command: ["mongod"]
+          args: ["--smallfiles"]
           ports:
             - containerPort: 27017
           imagePullPolicy: Always
