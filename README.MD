@@ -149,6 +149,11 @@ To destroy your code:
   kubectl apply -f k8s/mongo_admin/ingress_mongo_admin.yml # create ingress for mongo_admin to make it reachable from the outside of cluster
   ````
 
+#### Verify
+ - Use `kubectl get pods` to control application start
+ - http://realworld.local.io/register - registration is required
+ - http://adminmongo.realworld.local.io (mongodb://mongo/conduit as connection string)
+
 #### Stop code:
 - Remove all created resources
   ````bash
