@@ -100,3 +100,68 @@ To destroy your code:
   molecule test # run all test on this role
 ````
 - Run and stop project the same as **HW22**
+
+
+### HW24. Kubernetes. Realworld app
+- Work with StorageClass, PersistentVolumesClaims, PersistentVolumes
+- Work with Deployments, StatefulSets
+- Work with Services, Ingress
+
+#### Run code:
+- Start minikube cluster
+  ````bash
+  minikube start -p first-cluster # start cluster
+  minikube addons enable csi-hostpath-driver -p first-cluster # enable csi StorageClass
+  minikube addons enable ingress -p first-cluster # enable ingress Controller
+  ````
+- Add DNS records to hosts file
+  ````bash
+  echo "$(minikube ip -p first-cluster) realworld.local.io" | sudo tee -a /etc/hosts # frontend
+  echo "$(minikube ip -p first-cluster) backend.realworld.local.io" | sudo tee -a /etc/hosts # backend 
+  echo "$(minikube ip -p first-cluster) adminmongo.realworld.local.io" | sudo tee -a /etc/hosts # adminmongo
+  ````
+- Set first-cluster as default for kubectl
+  ````bash
+  kubectl config use-context first-cluster # set first-cluster as default
+  ````
+- Deploy mongoDB
+  ````bash
+  kubectl apply -f k8s/mongodb/pvc_mongo.yml # create PersistentVolumesClaims for future mongodb pods
+  kubectl apply -f k8s/mongodb/statefulset_mongo.yml # deploy mongodb
+  kubectl apply -f k8s/mongodb/svc_mongo.yml # create service for mongodb
+  ````
+- Deploy backend
+  ````bash
+  kubectl apply -f k8s/backend/deployment-backend.yml # deploy backend
+  kubectl apply -f k8s/backend/svc_backend.yml # create service for backend
+  kubectl apply -f k8s/backend/ingress_backend.yml # create ingress for backend to make it reachable from the outside of cluster
+  ````
+- Deploy frontend
+  ````bash
+  kubectl apply -f k8s/frontend/deployment-frontend.yml # deploy frontend
+  kubectl apply -f k8s/frontend/svc_frontend.yml # create service for frontend
+  kubectl apply -f k8s/frontend/ingress_frontend.yml # create ingress for frontend to make it reachable from the outside of cluster
+  ````
+- Deploy mongo-admin
+  ````bash
+  kubectl apply -f k8s/mongo_admin/statefulset_mongo_admin.yml # deploy mongo_admin
+  kubectl apply -f k8s/mongo_admin/svc_mongo_admin.yml # create service for mongo_admin
+  kubectl apply -f k8s/mongo_admin/ingress_mongo_admin.yml # create ingress for mongo_admin to make it reachable from the outside of cluster
+  ````
+
+#### Stop code:
+- Remove all created resources
+  ````bash
+  kubectl delete -f k8s/mongo_admin
+  kubectl delete -f k8s/frontend
+  kubectl delete -f k8s/backend
+  kubectl delete -f k8s/mongodb
+  ````
+- Remove DNS-records from hosts file
+  ````bash
+  sudo sed -i -E "/$(minikube ip -p first-cluster) (backend.|adminmongo.)?realworld.local.io/d" /etc/hosts
+  ````
+- Delete cluster
+  ````bash
+  minikube delete -p first-cluster
+  ````
