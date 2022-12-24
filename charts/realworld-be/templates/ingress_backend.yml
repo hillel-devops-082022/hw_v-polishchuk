@@ -5,7 +5,7 @@ metadata:
   name: be-realworld
 spec:
   rules:
-    - host: "backend.realworld.local.io"
+    - host: {{ .Values.ingress.host }}
       http:
         paths:
           - pathType: Prefix
@@ -14,4 +14,4 @@ spec:
               service:
                 name: be-realworld
                 port:
-                  number: 8081
+                  number: {{ .Values.port }}

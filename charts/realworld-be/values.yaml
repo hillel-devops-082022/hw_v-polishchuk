@@ -1,3 +1,14 @@
 ---
 image:
+  repository: "polishchukv"
+  name: "hillel-backend"
   tag: "0.0.1"
+replicas:
+  qty: 2
+port: 8081
+env:
+  secret: "secret"
+  mongo_db_uri: "mongodb://mongo/conduit"
+  node_env: "production"
+ingress:
+  host: "backend.realworld.local.io"
