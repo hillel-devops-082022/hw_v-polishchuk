@@ -1,0 +1,17 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mongo-admin
+spec:
+  rules:
+    - host: {{ if ne .Release.Namespace "default" }}{{ .Release.Namespace }}.{{ end }}{{ .Values.mongo_admin.ingress.host }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: mongo-admin
+                port:
+                  number: {{ .Values.mongo_admin.ingress.port }}

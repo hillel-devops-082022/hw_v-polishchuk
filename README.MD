@@ -170,3 +170,68 @@ To destroy your code:
   ````bash
   minikube delete -p first-cluster
   ````
+
+
+### HW25. Kubernetes: Helm Charts
+- Create helm chart
+- Use chart dependencies
+- Use chart variables
+
+#### Run code:
+- Start minikube cluster
+  ````bash
+  minikube start -p chart-cluster # start cluster
+  minikube addons enable csi-hostpath-driver -p chart-cluster # enable csi StorageClass
+  minikube addons enable ingress -p chart-cluster # enable ingress Controller
+  ````
+- Add DNS records to hosts file
+  ````bash
+  echo "$(minikube ip -p chart-cluster) realworld.local.io" | sudo tee -a /etc/hosts # frontend
+  echo "$(minikube ip -p chart-cluster) backend.realworld.local.io" | sudo tee -a /etc/hosts # backend 
+  echo "$(minikube ip -p chart-cluster) adminmongo.realworld.local.io" | sudo tee -a /etc/hosts # adminmongo
+  ````
+- Set chart-cluster as default for kubectl
+  ````bash
+  kubectl config use-context chart-cluster # set chart-cluster as default
+  ````
+- Update dependencies chart
+  ````bash
+  helm dependency build charts/realworld-be # backend chart
+  helm dependency build charts/realworld # main chart
+  ````
+- Deploy chart in default namespace
+  ````bash
+  helm install realworld-ns-default charts/realworld
+  ````
+- Update chart
+  ````bash
+  helm upgrade --install realworld-ns-default -f charts/realworld/values.yaml charts/realworld
+  ````
+- Deploy chart in namespace "first". All endpoints will be prefixed with namespace name (first.realworld.local.io, first.backend.realworld.local.io etc), bu sure to add these domains into the /etc/hosts  
+  ````bash
+  helm install realworld-ns-first charts/realworld --namespace first --create-namespace
+  ````
+
+#### Verify
+- Use `kubectl get pods` to control application start
+- http://realworld.local.io/register - registration is required
+- http://adminmongo.realworld.local.io (mongodb://mongo/conduit as connection string)
+
+#### Stop code:
+- Remove DNS-records from hosts file
+  ````bash
+  sudo sed -i -E "/$(minikube ip -p chart-cluster) (backend.|adminmongo.)?realworld.local.io/d" /etc/hosts
+  ````
+- Uninstall chart
+  ````bash
+  helm uninstall realworld-ns-default 
+  ````
+- Uninstall chart in namespace "first" and namespace
+  ````bash
+  helm uninstall realworld-ns-first -n first
+  kubectl delete ns first
+  ````
+- Delete cluster
+  ````bash
+  minikube delete -p chart-cluster
+  ````

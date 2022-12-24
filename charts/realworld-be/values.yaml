@@ -1,0 +1,35 @@
+---
+image:
+  repository: "polishchukv"
+  name: "hillel-backend"
+  tag: "0.0.1"
+replicas:
+  qty: 2
+port: 8081
+env:
+  secret: "secret"
+  mongo_db_uri: "mongodb://mongo/conduit"
+  node_env: "production"
+ingress:
+  host: "backend.realworld.local.io"
+
+mongo:
+  mongo:
+    image:
+      tag: "2.2"
+    replicas:
+      qty: 1
+    port: 27017
+    pvc:
+      size: 1Gi
+      storage_class_name: csi-hostpath-sc
+
+  mongo_admin:
+    image:
+      tag: "latest"
+    replicas:
+      qty: 1
+    port: 8082
+    ingress:
+      host: "adminmongo.realworld.local.io"
+      port: 8082

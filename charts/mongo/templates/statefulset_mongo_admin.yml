@@ -1,0 +1,32 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo-admin-realworld
+  labels:
+    app: realworld
+    type: mongo-admin
+spec:
+  serviceName: mongo-admin
+  replicas: {{ .Values.mongo_admin.replicas.qty }}
+  selector:
+    matchLabels:
+      app: realworld
+      type: mongo-admin
+  template:
+    metadata:
+      labels:
+        app: realworld
+        type: mongo-admin
+    spec:
+      containers:
+        - name: mongo-realworld
+          image: adicom/admin-mongo:{{ .Values.mongo_admin.image.tag }}
+          ports:
+            - containerPort: {{ .Values.mongo_admin.port }}
+          imagePullPolicy: Always
+          env:
+            - name: PORT
+              value: "{{ .Values.mongo_admin.port }}"
+            - name: DB_HOST
+              value: "mongo"

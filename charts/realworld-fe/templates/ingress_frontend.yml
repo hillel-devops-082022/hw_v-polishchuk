@@ -1,0 +1,17 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fe-realworld
+spec:
+  rules:
+    - host: {{ if ne .Release.Namespace "default" }}{{ .Release.Namespace }}.{{ end }}{{ .Values.ingress.host }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: fe-realworld
+                port:
+                  number: {{ .Values.ingress.port }}

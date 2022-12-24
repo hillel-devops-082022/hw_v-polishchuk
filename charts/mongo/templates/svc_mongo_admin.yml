@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-admin
+  labels:
+    app: realworld
+    type: mongo-admin
+spec:
+  ports:
+    - port: {{ .Values.mongo_admin.port }}
+      name: mongo-admin
+  selector:
+    app: realworld
+    type: mongo-admin

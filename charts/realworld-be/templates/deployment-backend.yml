@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: be-realworld
+  labels:
+    app: realworld
+    type: backend
+spec:
+  replicas: {{ .Values.replicas.qty }}
+  selector:
+    matchLabels:
+      app: realworld
+      type: backend
+  template:
+    metadata:
+      labels:
+        app: realworld
+        type: backend
+    spec:
+      containers:
+        - name: be-realworld
+          image: {{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}
+          ports:
+            - containerPort: {{ .Values.port }}
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: {{ .Values.port }}
+            initialDelaySeconds: 30
+            timeoutSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: {{ .Values.port }}
+            initialDelaySeconds: 30
+            timeoutSeconds: 15
+          env:
+            - name: PORT
+              value: "{{ .Values.port }}"
+            - name: NODE_ENV
+              value: "{{ .Values.env.node_env }}"
+            - name: MONGO_DB_URI
+              value: "{{ .Values.env.mongo_db_uri }}"
+            - name: SECRET
+              value: "{{ .Values.env.secret }}"
