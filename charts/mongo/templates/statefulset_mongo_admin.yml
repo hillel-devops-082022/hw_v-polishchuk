@@ -8,7 +8,7 @@ metadata:
     type: mongo-admin
 spec:
   serviceName: mongo-admin
-  replicas: 1
+  replicas: {{ .Values.mongo_admin.replicas.qty }}
   selector:
     matchLabels:
       app: realworld
@@ -21,12 +21,12 @@ spec:
     spec:
       containers:
         - name: mongo-realworld
-          image: adicom/admin-mongo:latest
+          image: adicom/admin-mongo:{{ .Values.mongo_admin.image.tag }}
           ports:
-            - containerPort: 8082
+            - containerPort: {{ .Values.mongo_admin.port }}
           imagePullPolicy: Always
           env:
             - name: PORT
-              value: "8082"
+              value: "{{ .Values.mongo_admin.port }}"
             - name: DB_HOST
               value: "mongo"

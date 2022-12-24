@@ -8,7 +8,7 @@ metadata:
     type: mongo-admin
 spec:
   ports:
-    - port: 8082
+    - port: {{ .Values.mongo_admin.port }}
       name: mongo-admin
   selector:
     app: realworld

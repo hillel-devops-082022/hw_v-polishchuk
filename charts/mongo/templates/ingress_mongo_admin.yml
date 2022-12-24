@@ -5,7 +5,7 @@ metadata:
   name: mongo-admin
 spec:
   rules:
-    - host: "adminmongo.realworld.local.io"
+    - host: {{ .Values.mongo_admin.ingress.host }}
       http:
         paths:
           - pathType: Prefix
@@ -14,4 +14,4 @@ spec:
               service:
                 name: mongo-admin
                 port:
-                  number: 8082
+                  number: {{ .Values.mongo_admin.ingress.port }}

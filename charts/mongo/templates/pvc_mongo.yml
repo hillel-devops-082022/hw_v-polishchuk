@@ -8,5 +8,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
-  storageClassName: csi-hostpath-sc
+      storage: {{ .Values.mongo.pvc.size }}
+  storageClassName: {{ .Values.mongo.pvc.storage_class_name }}

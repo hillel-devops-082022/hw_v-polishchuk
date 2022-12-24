@@ -8,7 +8,7 @@ metadata:
     type: mongo
 spec:
   ports:
-    - port: 27017
+    - port: {{ .Values.mongo.port }}
       name: mongo
   clusterIP: None
   selector:

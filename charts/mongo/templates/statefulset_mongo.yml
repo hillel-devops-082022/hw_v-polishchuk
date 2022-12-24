@@ -8,7 +8,7 @@ metadata:
     type: mongo
 spec:
   serviceName: mongo
-  replicas: 1
+  replicas: {{ .Values.mongo.replicas.qty }}
   selector:
     matchLabels:
       app: realworld
@@ -25,11 +25,11 @@ spec:
             claimName: mongo-pvc
       containers:
         - name: mongo-realworld
-          image: mongo:2.2
+          image: mongo:{{ .Values.mongo.image.tag }}
           command: ["mongod"]
           args: ["--smallfiles"]
           ports:
-            - containerPort: 27017
+            - containerPort: {{ .Values.mongo.port }}
           imagePullPolicy: Always
           volumeMounts:
             - mountPath: /data/db

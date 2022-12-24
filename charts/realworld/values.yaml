@@ -14,6 +14,27 @@ realworld-be:
   ingress:
     host: "backend.realworld.local.io"
 
+  mongo:
+    mongo:
+      image:
+        tag: "2.2"
+      replicas:
+        qty: 1
+      port: 27017
+      pvc:
+        size: 1Gi
+        storage_class_name: csi-hostpath-sc
+
+    mongo_admin:
+      image:
+        tag: "latest"
+      replicas:
+        qty: 1
+      port: 8082
+      ingress:
+        host: "adminmongo.realworld.local.io"
+        port: 80
+
 realworld-fe:
   image:
     repository: "polishchukv"
@@ -27,3 +48,4 @@ realworld-fe:
   ingress:
     host: "realworld.local.io"
     port: 80
+
