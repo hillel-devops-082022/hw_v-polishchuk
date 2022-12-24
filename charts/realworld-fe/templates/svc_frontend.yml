@@ -12,5 +12,5 @@ spec:
     type: frontend
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 4100
+      port: {{ .Values.ingress.port }}
+      targetPort: {{ .Values.port }}

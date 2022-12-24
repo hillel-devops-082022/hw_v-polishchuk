@@ -7,7 +7,7 @@ metadata:
     app: realworld
     type: frontend
 spec:
-  replicas: 2
+  replicas: {{ .Values.replicas.qty }}
   selector:
     matchLabels:
       app: realworld
@@ -20,10 +20,10 @@ spec:
     spec:
       containers:
         - name: fe-realworld
-          image: polishchukv/hillel-frontend:0.0.2
+          image: {{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}
           env:
             - name: REACT_APP_BACKEND_URL
-              value: "http://backend.realworld.local.io/api"
+              value: {{ .Values.env.react_app_backend_url }}
           ports:
-            - containerPort: 4100
+            - containerPort: {{ .Values.port }}
           imagePullPolicy: Always

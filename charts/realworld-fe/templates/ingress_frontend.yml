@@ -5,7 +5,7 @@ metadata:
   name: fe-realworld
 spec:
   rules:
-    - host: "realworld.local.io"
+    - host: {{ .Values.ingress.host }}
       http:
         paths:
           - pathType: Prefix
@@ -14,4 +14,4 @@ spec:
               service:
                 name: fe-realworld
                 port:
-                  number: 80
+                  number: {{ .Values.ingress.port }}
