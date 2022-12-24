@@ -1,9 +1,9 @@
 dependencies:
 - name: realworld-be
   repository: file://../realworld-be
-  version: 0.1.0
+  version: 0.2.0
 - name: realworld-fe
   repository: file://../realworld-fe
   version: 0.1.0
-digest: sha256:191c5802f8a7da07cfdfaf6a2da1585f82f380a877d6a8b340ef29d186320025
-generated: "2022-12-24T10:23:09.417157594+02:00"
+digest: sha256:ebcef43119d96d6b44fe35b29b3481a106f3672f7af2120dcbf3432e6f34e2be
+generated: "2022-12-24T11:05:28.112635462+02:00"

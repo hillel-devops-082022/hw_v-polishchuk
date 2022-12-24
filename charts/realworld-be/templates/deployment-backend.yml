@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: be-realworld
-          image: polishchukv/hillel-backend:0.0.1
+          image: polishchukv/hillel-backend:{{ .Values.image.tag }}
           ports:
             - containerPort: 8081
           imagePullPolicy: Always

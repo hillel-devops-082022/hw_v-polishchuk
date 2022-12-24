@@ -25,7 +25,7 @@ appVersion: "1.16.0"
 
 dependencies:
   - name: realworld-be
-    version: 0.1.0
+    version: 0.2.0
     repository: file://../realworld-be
   - name: realworld-fe
     version: 0.1.0
