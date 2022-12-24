@@ -23,7 +23,7 @@ spec:
           image: {{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}
           env:
             - name: REACT_APP_BACKEND_URL
-              value: {{ .Values.env.react_app_backend_url }}
+              value: {{ if ne .Release.Namespace "default" }}{{ .Release.Namespace }}.{{ end }}{{ .Values.env.react_app_backend_url }}
           ports:
             - containerPort: {{ .Values.port }}
           imagePullPolicy: Always

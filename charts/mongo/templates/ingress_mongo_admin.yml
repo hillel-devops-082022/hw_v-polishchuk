@@ -5,7 +5,7 @@ metadata:
   name: mongo-admin
 spec:
   rules:
-    - host: {{ .Values.mongo_admin.ingress.host }}
+    - host: {{ if ne .Release.Namespace "default" }}{{ .Release.Namespace }}.{{ end }}{{ .Values.mongo_admin.ingress.host }}
       http:
         paths:
           - pathType: Prefix

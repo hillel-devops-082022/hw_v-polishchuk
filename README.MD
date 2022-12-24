@@ -199,13 +199,17 @@ To destroy your code:
   helm dependency build charts/realworld-be # backend chart
   helm dependency build charts/realworld # main chart
   ````
-- Deploy chart
+- Deploy chart in default namespace
   ````bash
   helm install realworld-ns-default charts/realworld
   ````
 - Update chart
   ````bash
   helm upgrade --install realworld-ns-default -f charts/realworld/values.yaml charts/realworld
+  ````
+- Deploy chart in namespace "first". All endpoints will be prefixed with namespace name (first.realworld.local.io, first.backend.realworld.local.io etc), bu sure to add these domains into the /etc/hosts  
+  ````bash
+  helm install realworld-ns-first charts/realworld --namespace first --create-namespace
   ````
 
 #### Verify
@@ -221,6 +225,11 @@ To destroy your code:
 - Uninstall chart
   ````bash
   helm uninstall realworld-ns-default 
+  ````
+- Uninstall chart in namespace "first" and namespace
+  ````bash
+  helm uninstall realworld-ns-first -n first
+  kubectl delete ns first
   ````
 - Delete cluster
   ````bash
