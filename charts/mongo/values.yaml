@@ -17,4 +17,4 @@ mongo_admin:
   port: 8082
   ingress:
     host: "adminmongo.realworld.local.io"
-    port: 80
+    port: 8082
